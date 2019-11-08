@@ -1,23 +1,51 @@
 library calendar_strip;
 
-import 'dart:developer';
-
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import './date-utils.dart';
 
 class CalendarStrip extends StatefulWidget {
   // This widget is the root of your application.
-  State<CalendarStrip> createState() => CalendarStripState();
+  final Function onDateSelected;
+  final Function dateTileBuilder;
+  final BoxDecoration containerDecoration;
+  final double containerHeight;
+  final Function monthNameWidget;
+  final Color iconColor;
+  final DateTime selectedDate;
+  final DateTime startDate;
+  final DateTime endDate;
+
+  CalendarStrip({
+    @required this.onDateSelected,
+    this.dateTileBuilder,
+    this.containerDecoration,
+    this.containerHeight,
+    this.monthNameWidget,
+    this.iconColor,
+    this.selectedDate,
+    this.startDate,
+    this.endDate,
+  });
+
+  State<CalendarStrip> createState() => CalendarStripState(selectedDate, startDate, endDate);
 }
 
-class CalendarStripState extends State<CalendarStrip> {
+class CalendarStripState extends State<CalendarStrip> with TickerProviderStateMixin {
   DateTime currentDate = DateTime.now();
-  DateTime selectedDate = DateTime.now();
+  DateTime selectedDate;
   String monthLabel;
   bool inBetweenMonths = false;
-  int rowStartingDay;
+  DateTime rowStartingDate;
+  double opacity = 0.0;
   DateTime lastDayOfMonth;
-  List monthLabels = [
+  TextStyle monthLabelStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black87);
+  TextStyle selectedDateStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white);
+  bool isOnEndingWeek = false, isOnStartingWeek = false;
+  bool doesDateRangeExists = false;
+  DateTime today;
+
+  List<String> monthLabels = [
     "January",
     "February",
     "March",
@@ -32,91 +60,330 @@ class CalendarStripState extends State<CalendarStrip> {
     "December"
   ];
 
-  CalendarStripState() {
+  List<String> dayLabels = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
+
+  CalendarStripState(DateTime selectedDate, DateTime startDate, DateTime endDate) {
+    today = getDateOnly(DateTime.now());
     lastDayOfMonth = DateUtils.getLastDayOfMonth(currentDate);
+    if ((startDate == null && endDate != null) || (startDate != null && endDate == null)) {
+      throw Exception("Both 'startDate' and 'endDate' are mandatory to specify range");
+    } else if (startDate == null && startDate == null) {
+      doesDateRangeExists = false;
+    } else {
+      doesDateRangeExists = true;
+    }
+    if (selectedDate != null) {
+      currentDate = getDateOnly(nullOrDefault(selectedDate, currentDate));
+    }
+    if (doesDateRangeExists) {
+      if (endDate != null && isDateAfter(currentDate, endDate)) {
+        currentDate = getDateOnly(startDate);
+      } else if (isDateBefore(currentDate, startDate)) {
+        currentDate = getDateOnly(startDate);
+      }
+    }
+    this.selectedDate = currentDate;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    rowStartingDate =
+        rowStartingDate != null ? rowStartingDate : currentDate.subtract(Duration(days: currentDate.weekday - 1));
+    var dateRange = calculateDateRange(null);
+
+    setState(() {
+      isOnEndingWeek = dateRange['isEndingWeekOnRange'];
+      isOnStartingWeek = dateRange['isStartingWeekOnRange'];
+    });
   }
 
   int getLastDayOfMonth(rowStartingDay) {
     return DateUtils.getLastDayOfMonth(currentDate.add(Duration(days: rowStartingDay))).day;
   }
 
+  String getMonthName(
+    DateTime dateObj,
+  ) {
+    return monthLabels[dateObj.month - 1];
+  }
+
   String getMonthLabel() {
-    int startingDayMonth, endingDayMonth;
-    int rowEndingDay = rowStartingDay + 7;
+    DateTime startingDayObj = rowStartingDate, endingDayObj = rowStartingDate.add(Duration(days: 6));
     String label = "";
-    print(rowStartingDay);
-    if (rowStartingDay > 0) {
-      startingDayMonth = currentDate.add(Duration(days: rowStartingDay.abs())).month;
+    if (startingDayObj.month == endingDayObj.month) {
+      label = "${getMonthName(startingDayObj)} ${startingDayObj.year}";
     } else {
-      startingDayMonth = currentDate.subtract(Duration(days: rowStartingDay.abs())).month;
-    }
-
-    if (rowEndingDay > 0) {
-      endingDayMonth = currentDate.add(Duration(days: rowEndingDay.abs())).month;
-    } else {
-      endingDayMonth = currentDate.subtract(Duration(days: rowEndingDay.abs())).month;
-    }
-
-    print("$startingDayMonth $endingDayMonth");
-    if (startingDayMonth == endingDayMonth) {
-      label = monthLabels[startingDayMonth - 1];
-    } else {
-      label = "${monthLabels[startingDayMonth - 1]} / ${monthLabels[endingDayMonth - 1]}";
+      var startingDayYear = "${startingDayObj.year == endingDayObj.year ? "" : startingDayObj.year}";
+      label = "${getMonthName(startingDayObj)} $startingDayYear / ${getMonthName(endingDayObj)} ${endingDayObj.year}";
     }
     return label;
   }
 
+  isDateBefore(date1, date2) {
+    DateTime _date1 = DateTime(date1.year, date1.month, date1.day);
+    DateTime _date2 = DateTime(date2.year, date2.month, date2.day);
+    return !_date1.isAfter(_date2);
+  }
+
+  isDateAfter(date1, date2) {
+    DateTime _date1 = DateTime(date1.year, date1.month, date1.day);
+    DateTime _date2 = DateTime(date2.year, date2.month, date2.day);
+    return !_date1.isBefore(_date2);
+  }
+
+  getDateOnly(DateTime dateTimeObj) {
+    return DateTime(dateTimeObj.year, dateTimeObj.month, dateTimeObj.day);
+  }
+
+  Map<String, bool> calculateDateRange(mode) {
+    if (doesDateRangeExists) {
+      DateTime _nextRowStartingDate;
+      DateTime weekStartingDate, weekEndingDate;
+      if (mode != null) {
+        _nextRowStartingDate =
+            mode == "PREV" ? rowStartingDate.subtract(Duration(days: 7)) : rowStartingDate.add(Duration(days: 7));
+      } else {
+        _nextRowStartingDate = rowStartingDate;
+      }
+      weekStartingDate = getDateOnly(_nextRowStartingDate);
+      weekEndingDate = getDateOnly(_nextRowStartingDate.add(Duration(days: 6)));
+      bool isStartingWeekOnRange = isDateAfter(widget.startDate, weekStartingDate);
+      bool isEndingWeekOnRange = isDateBefore(widget.endDate, weekEndingDate);
+      return {"isEndingWeekOnRange": isEndingWeekOnRange, "isStartingWeekOnRange": isStartingWeekOnRange};
+    } else {
+      return {"isEndingWeekOnRange": false, "isStartingWeekOnRange": false};
+    }
+  }
+
   onPrevRow() {
+    var dateRange = calculateDateRange("PREV");
     setState(() {
-      rowStartingDay = rowStartingDay - 7;
+      rowStartingDate = rowStartingDate.subtract(Duration(days: 7));
+      isOnEndingWeek = dateRange['isEndingWeekOnRange'];
+      isOnStartingWeek = dateRange['isStartingWeekOnRange'];
     });
   }
 
   onNextRow() {
+    var dateRange = calculateDateRange("NEXT");
     setState(() {
-      rowStartingDay = rowStartingDay + 7;
+      rowStartingDate = rowStartingDate.add(Duration(days: 7));
+      isOnEndingWeek = dateRange['isEndingWeekOnRange'];
+      isOnStartingWeek = dateRange['isStartingWeekOnRange'];
     });
+  }
+
+  onDateTap(date) {
+    if (!doesDateRangeExists) {
+      setState(() {
+        selectedDate = date;
+        widget.onDateSelected(date);
+      });
+    } else if (isDateAfter(date, widget.startDate) && isDateBefore(date, widget.endDate)) {
+      setState(() {
+        selectedDate = date;
+        widget.onDateSelected(date);
+      });
+    } else {}
+  }
+
+  nullOrDefault(var normalValue, var defaultValue) {
+    if (normalValue == null) {
+      return defaultValue;
+    }
+    return normalValue;
+  }
+
+  monthLabelWidget(monthLabel) {
+    if (widget.monthNameWidget != null) {
+      return widget.monthNameWidget(monthLabel);
+    }
+    return Container(child: Text(monthLabel, style: monthLabelStyle), padding: EdgeInsets.only(top: 7, bottom: 3));
+  }
+
+  rightIconWidget() {
+    if (!isOnEndingWeek) {
+      return InkWell(
+        child: Icon(
+          CupertinoIcons.right_chevron,
+          size: 30,
+          color: nullOrDefault(widget.iconColor, Colors.black),
+        ),
+        onTap: onNextRow,
+        splashColor: Colors.black26,
+      );
+    } else {
+      return Container(width: 20);
+    }
+  }
+
+  leftIconWidget() {
+    if (!isOnStartingWeek) {
+      return InkWell(
+        child: Icon(
+          CupertinoIcons.left_chevron,
+          size: 30,
+          color: nullOrDefault(widget.iconColor, Colors.black),
+        ),
+        onTap: onPrevRow,
+        splashColor: Colors.black26,
+      );
+    } else {
+      return Container(width: 20);
+    }
+  }
+
+  checkOutOfRangeStatus(DateTime date) {
+    date = DateTime(date.year, date.month, date.day);
+    if (widget.startDate != null && widget.endDate != null) {
+      if (isDateAfter(date, widget.startDate) && isDateBefore(date, widget.endDate)) {
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      return false;
+    }
   }
 
   buildDateRow() {
     List<Widget> currentWeekRow = [];
-    rowStartingDay = rowStartingDay != null ? rowStartingDay : currentDate.day - currentDate.weekday + 1;
-    monthLabel = getMonthLabel();
-    for (var eachDay = rowStartingDay; eachDay < rowStartingDay + 7; eachDay++) {
-      if (eachDay > currentDate.day) {
-        currentWeekRow.add(dateTileBuilder(currentDate.add(Duration(days: eachDay))));
-      } else {
-        currentWeekRow.add(dateTileBuilder(currentDate.subtract(Duration(days: currentDate.day - eachDay))));
-      }
+    int rowStartingDay = rowStartingDate != null ? rowStartingDate.day : currentDate.day - currentDate.weekday + 1;
+    for (var eachDay = 0; eachDay < 7; eachDay++) {
+      var index = eachDay;
+      currentWeekRow.add(dateTileBuilder(rowStartingDate.add(Duration(days: eachDay)), selectedDate, index));
     }
+    monthLabel = getMonthLabel();
+
     return Column(children: [
-      Container(child: Text(monthLabel)),
+      monthLabelWidget(monthLabel),
       Container(
-        child: Row(children: [
-          GestureDetector(child: Container(child: Icon(Icons.chevron_left, size: 40)), onTap: onPrevRow),
-          Expanded(child: Row(children: currentWeekRow)),
-          GestureDetector(child: Container(child: Icon(Icons.chevron_right, size: 40)), onTap: onNextRow),
-        ]),
+        padding: EdgeInsets.all(0),
+        child: Row(children: [leftIconWidget(), Expanded(child: Row(children: currentWeekRow)), rightIconWidget()]),
       )
     ]);
   }
 
-  Widget dateTileBuilder(DateTime date) {
+  Widget dateTileBuilder(DateTime date, DateTime selectedDate, int rowIndex) {
+    bool isDateOutOfRange = checkOutOfRangeStatus(date);
+    if (widget.dateTileBuilder != null) {
+      return Expanded(
+        child: SlideFadeTransition(
+          delay: 30 + (30 * rowIndex),
+          id: "${date.day}${date.month}${date.year}",
+          curve: Curves.ease,
+          child: InkWell(
+            onTap: () => onDateTap(date),
+            child: Container(
+              child: widget.dateTileBuilder(date, selectedDate, rowIndex, dayLabels, isDateOutOfRange),
+            ),
+          ),
+        ),
+      );
+    }
+
+    bool isSelectedDate = date.compareTo(selectedDate) == 0;
+    var normalStyle =
+        TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: isDateOutOfRange ? Colors.black26 : Colors.black54);
     return Expanded(
-      child: Container(
-          alignment: Alignment.center,
-          child: Text(
-            date.day.toString(),
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-          )),
+      child: SlideFadeTransition(
+        delay: 30 + (30 * rowIndex),
+        id: "${date.day}${date.month}${date.year}",
+        curve: Curves.ease,
+        child: InkWell(
+          onTap: () => onDateTap(date),
+          child: Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.only(top: 8, left: 5, right: 5, bottom: 5),
+            decoration: BoxDecoration(
+              color: !isSelectedDate ? Colors.transparent : Colors.blue,
+              borderRadius: BorderRadius.all(Radius.circular(60)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  dayLabels[date.weekday - 1],
+                  style: TextStyle(
+                    fontSize: 14.5,
+                    color: !isSelectedDate ? Colors.black : Colors.white,
+                  ),
+                ),
+                Text(date.day.toString(), style: !isSelectedDate ? normalStyle : selectedDateStyle),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   build(BuildContext context) {
     return Container(
-      height: 80,
-      decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.red)),
+      height: nullOrDefault(widget.containerHeight, 90.0),
       child: buildDateRow(),
+      decoration: widget.containerDecoration != null ? widget.containerDecoration : BoxDecoration(),
+    );
+  }
+}
+
+class SlideFadeTransition extends StatefulWidget {
+  final Widget child;
+  final int delay;
+  final String id;
+  final Curve curve;
+
+  SlideFadeTransition({@required this.child, @required this.id, this.delay, this.curve});
+
+  @override
+  SlideFadeTransitionState createState() => SlideFadeTransitionState();
+}
+
+class SlideFadeTransitionState extends State<SlideFadeTransition> with TickerProviderStateMixin {
+  AnimationController _animController;
+  Animation<Offset> _animOffset;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animController = AnimationController(vsync: this, duration: Duration(milliseconds: 400));
+    final _curve =
+        CurvedAnimation(curve: widget.curve != null ? widget.curve : Curves.decelerate, parent: _animController);
+    _animOffset = Tween<Offset>(begin: const Offset(0.0, 0.25), end: Offset.zero).animate(_curve);
+
+    if (widget.delay == null) {
+      _animController.forward();
+    } else {
+      _animController.reset();
+      Future.delayed(Duration(milliseconds: widget.delay), () {
+        _animController.forward();
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(SlideFadeTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.id != oldWidget.id) {
+      _animController.reset();
+      Future.delayed(Duration(milliseconds: widget.delay), () {
+        _animController.forward();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _animController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      child: SlideTransition(position: _animOffset, child: widget.child),
+      opacity: _animController,
     );
   }
 }
