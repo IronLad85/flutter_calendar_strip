@@ -19,8 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  calendar_strip:
-    path: "../"
+  calendar_strip: ^1.0.4
 
   cupertino_icons: ^0.1.2
 
