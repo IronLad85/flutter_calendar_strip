@@ -15,6 +15,7 @@ class CalendarStrip extends StatefulWidget {
   final DateTime selectedDate;
   final DateTime startDate;
   final DateTime endDate;
+  final List<DateTime> markedDates;
 
   CalendarStrip({
     @required this.onDateSelected,
@@ -26,6 +27,7 @@ class CalendarStrip extends StatefulWidget {
     this.selectedDate,
     this.startDate,
     this.endDate,
+    this.markedDates,
   });
 
   State<CalendarStrip> createState() => CalendarStripState(selectedDate, startDate, endDate);
@@ -65,8 +67,16 @@ class CalendarStripState extends State<CalendarStrip> with TickerProviderStateMi
   CalendarStripState(DateTime selectedDate, DateTime startDate, DateTime endDate) {
     today = getDateOnly(DateTime.now());
     lastDayOfMonth = DateUtils.getLastDayOfMonth(currentDate);
+    runPresetsAndExceptions(selectedDate, startDate, endDate);
+    this.selectedDate = currentDate;
+  }
+
+  runPresetsAndExceptions(selectedDate, startDate, endDate) {
     if ((startDate == null && endDate != null) || (startDate != null && endDate == null)) {
       throw Exception("Both 'startDate' and 'endDate' are mandatory to specify range");
+    } else if (selectedDate != null &&
+        (!isDateAfter(selectedDate, startDate) || !isDateBefore(selectedDate, endDate))) {
+      throw Exception("Selected Date is out of range from start and end dates");
     } else if (startDate == null && startDate == null) {
       doesDateRangeExists = false;
     } else {
@@ -82,7 +92,6 @@ class CalendarStripState extends State<CalendarStrip> with TickerProviderStateMi
         currentDate = getDateOnly(startDate);
       }
     }
-    this.selectedDate = currentDate;
   }
 
   @override
@@ -132,8 +141,22 @@ class CalendarStripState extends State<CalendarStrip> with TickerProviderStateMi
     return !_date1.isBefore(_date2);
   }
 
-  getDateOnly(DateTime dateTimeObj) {
+  DateTime getDateOnly(DateTime dateTimeObj) {
     return DateTime(dateTimeObj.year, dateTimeObj.month, dateTimeObj.day);
+  }
+
+  bool isDateMarked(date) {
+    date = getDateOnly(date);
+    bool _isDateMarked = false;
+    if (widget.markedDates != null) {
+      widget.markedDates.forEach((DateTime eachMarkedDate) {
+        if (getDateOnly(eachMarkedDate) == date) {
+          _isDateMarked = true;
+        }
+        ;
+      });
+    }
+    return _isDateMarked;
   }
 
   Map<String, bool> calculateDateRange(mode) {
@@ -249,13 +272,11 @@ class CalendarStripState extends State<CalendarStrip> with TickerProviderStateMi
 
   buildDateRow() {
     List<Widget> currentWeekRow = [];
-    int rowStartingDay = rowStartingDate != null ? rowStartingDate.day : currentDate.day - currentDate.weekday + 1;
     for (var eachDay = 0; eachDay < 7; eachDay++) {
       var index = eachDay;
       currentWeekRow.add(dateTileBuilder(rowStartingDate.add(Duration(days: eachDay)), selectedDate, index));
     }
     monthLabel = getMonthLabel();
-
     return Column(children: [
       monthLabelWidget(monthLabel),
       Container(
@@ -267,6 +288,7 @@ class CalendarStripState extends State<CalendarStrip> with TickerProviderStateMi
 
   Widget dateTileBuilder(DateTime date, DateTime selectedDate, int rowIndex) {
     bool isDateOutOfRange = checkOutOfRangeStatus(date);
+    String dayName = dayLabels[date.weekday - 1];
     if (widget.dateTileBuilder != null) {
       return Expanded(
         child: SlideFadeTransition(
@@ -274,9 +296,11 @@ class CalendarStripState extends State<CalendarStrip> with TickerProviderStateMi
           id: "${date.day}${date.month}${date.year}",
           curve: Curves.ease,
           child: InkWell(
+            customBorder: CircleBorder(),
             onTap: () => onDateTap(date),
             child: Container(
-              child: widget.dateTileBuilder(date, selectedDate, rowIndex, dayLabels, isDateOutOfRange),
+              child:
+                  widget.dateTileBuilder(date, selectedDate, rowIndex, dayName, isDateMarked(date), isDateOutOfRange),
             ),
           ),
         ),

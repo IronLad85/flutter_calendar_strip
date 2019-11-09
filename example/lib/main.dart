@@ -24,9 +24,14 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  DateTime startDate = DateTime.now().subtract(Duration(days: 5));
-  DateTime endDate = DateTime.now().add(Duration(days: 5));
-  DateTime selectedDate = DateTime.now().add(Duration(days: 9));
+  DateTime startDate = DateTime.now().subtract(Duration(days: 2));
+  DateTime endDate = DateTime.now().add(Duration(days: 2));
+  DateTime selectedDate = DateTime.now().subtract(Duration(days: 2));
+  List<DateTime> markedDates = [
+    DateTime.now().subtract(Duration(days: 1)),
+    DateTime.now().subtract(Duration(days: 2)),
+    DateTime.now().add(Duration(days: 4))
+  ];
 
   onSelect(data) {
     print("DAMN -> $data");
@@ -34,32 +39,54 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _monthNameWidget(monthName) {
     return Container(
-      child: Text(monthName, style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.white)),
+      child: Text(monthName,
+          style:
+              TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black87, fontStyle: FontStyle.italic)),
       padding: EdgeInsets.only(top: 8, bottom: 4),
     );
   }
 
-  dateTileBuilder(DateTime date, DateTime selectedDate, int rowIndex, List<String> dayLabels, bool isDateOutOfRange) {
+  getMarkedIndicatorWidget() {
+    return Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+      Container(
+        margin: EdgeInsets.only(left: 1, right: 1),
+        width: 7,
+        height: 7,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+      ),
+      Container(
+        width: 7,
+        height: 7,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blue),
+      )
+    ]);
+  }
+
+  dateTileBuilder(date, selectedDate, rowIndex, dayName, isDateMarked, isDateOutOfRange) {
     bool isSelectedDate = date.compareTo(selectedDate) == 0;
-    TextStyle normalStyle =
-        TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: isDateOutOfRange ? Colors.white30 : Colors.white);
-    TextStyle selectedStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.white);
-    TextStyle dayNameStyle = TextStyle(
-        fontSize: 14.5, color: isDateOutOfRange ? Colors.white30 : !isSelectedDate ? Colors.white : Colors.white);
+    Color fontColor = isDateOutOfRange ? Colors.black26 : Colors.black87;
+    TextStyle normalStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: fontColor);
+    TextStyle selectedStyle = TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Colors.black87);
+    TextStyle dayNameStyle = TextStyle(fontSize: 14.5, color: fontColor);
+    List<Widget> _children = [
+      Text(dayName, style: dayNameStyle),
+      Text(date.day.toString(), style: !isSelectedDate ? normalStyle : selectedStyle),
+    ];
+
+    if (isDateMarked == true) {
+      _children.add(getMarkedIndicatorWidget());
+    }
 
     return AnimatedContainer(
-      duration: Duration(milliseconds: 250),
+      duration: Duration(milliseconds: 150),
       alignment: Alignment.center,
       padding: EdgeInsets.only(top: 8, left: 5, right: 5, bottom: 5),
       decoration: BoxDecoration(
-        color: !isSelectedDate ? Colors.transparent : Colors.white30,
+        color: !isSelectedDate ? Colors.transparent : Colors.white70,
         borderRadius: BorderRadius.all(Radius.circular(60)),
       ),
       child: Column(
-        children: [
-          Text(dayLabels[date.weekday - 1], style: dayNameStyle),
-          Text(date.day.toString(), style: !isSelectedDate ? normalStyle : selectedStyle),
-        ],
+        children: _children,
       ),
     );
   }
@@ -72,19 +99,15 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
           child: CalendarStrip(
-        startDate: startDate,
-        endDate: endDate,
+        // startDate: startDate,
+        // endDate: endDate,
+        // selectedDate: selectedDate,
         onDateSelected: onSelect,
         dateTileBuilder: dateTileBuilder,
-        iconColor: Colors.white,
+        iconColor: Colors.black87,
         monthNameWidget: _monthNameWidget,
-        containerDecoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [Color.fromRGBO(119, 64, 255, 0.9), Color.fromRGBO(191, 57, 113, 0.8)],
-          ),
-        ),
+        markedDates: markedDates,
+        containerDecoration: BoxDecoration(color: Colors.black12),
       )),
     );
   }
