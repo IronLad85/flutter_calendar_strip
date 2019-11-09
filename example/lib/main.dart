@@ -34,7 +34,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ];
 
   onSelect(data) {
-    print("DAMN -> $data");
+    print("Selected Date -> $data");
   }
 
   _monthNameWidget(monthName) {

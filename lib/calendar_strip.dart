@@ -153,7 +153,6 @@ class CalendarStripState extends State<CalendarStrip> with TickerProviderStateMi
         if (getDateOnly(eachMarkedDate) == date) {
           _isDateMarked = true;
         }
-        ;
       });
     }
     return _isDateMarked;
