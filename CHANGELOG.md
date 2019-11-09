@@ -12,3 +12,6 @@
 
 ## [1.0.3] - TODO: Fix Package Description.
 - UPDATED: Package Description updated
+
+## [1.0.4] - TODO: Remove Unused Dependencies.
+- REMOVED: Unused Dependencies
