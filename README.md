@@ -9,15 +9,15 @@
 </div>
 
 <div align="center">
-  <img src="./images/1.jpg" height="150" width="400"/>
-  <img src="./images/2.jpg" height="150" width="400"/>
-  <img src="./images/3.jpg" height="150" width="400"/>
-  <img src="./images/4.jpg" height="150" width="400"/>
+  <img src="https://raw.githubusercontent.com/IronLad85/flutter_calendar_strip/master/images/1.jpg" height="150" width="400"/>
+  <img src="https://raw.githubusercontent.com/IronLad85/flutter_calendar_strip/master/images/2.jpg" height="150" width="400"/>
+  <img src="https://raw.githubusercontent.com/IronLad85/flutter_calendar_strip/master/images/3.jpg" height="150" width="400"/>
+  <img src="https://raw.githubusercontent.com/IronLad85/flutter_calendar_strip/master/images/4.jpg" height="150" width="400"/>
 </div>
 
 ## Install
 
-```js
+```text
 dependencies:
           ...
           calendar_strip: 1.0.0

@@ -4,4 +4,7 @@
 
 ## [1.0.0] - TODO: Release first version of widget.
 
-- TODO: First version of widget is released.
+- ADDED: First version of widget is released.
+## [1.0.1] - TODO: Update Readme File.
+
+- UPDATED: Readme.md file updated
