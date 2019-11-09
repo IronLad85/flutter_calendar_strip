@@ -39,9 +39,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _monthNameWidget(monthName) {
     return Container(
-      child: Text(monthName,
-          style:
-              TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black87, fontStyle: FontStyle.italic)),
+      child: Text(
+        monthName,
+        style: TextStyle(
+          fontSize: 17,
+          fontWeight: FontWeight.w600,
+          color: Colors.black87,
+          fontStyle: FontStyle.italic,
+        ),
+      ),
       padding: EdgeInsets.only(top: 8, bottom: 4),
     );
   }
@@ -99,9 +105,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
           child: CalendarStrip(
-        // startDate: startDate,
-        // endDate: endDate,
-        // selectedDate: selectedDate,
+        startDate: startDate,
+        endDate: endDate,
         onDateSelected: onSelect,
         dateTileBuilder: dateTileBuilder,
         iconColor: Colors.black87,
