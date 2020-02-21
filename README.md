@@ -244,4 +244,4 @@ class _MyHomePageState extends State<MyHomePage> {
 | **`monthNameWidget`**     | Function that returns a custom widget for rendering the name of the current month.                   | `Function`       | -                    |
 | **`dateTileBuilder`**     | Function that returns a custom widget for rendering the name of the current month                    | `Function`       | -                    |
 | **`onDateSelected`**      | Function that is called on selection of a date. (Required)                                           | `Function`       | **`Required`**       |
-
+| **`addSwipeControl`**     | Boolean that is used to turn on or off swipe control on the calendar strip                           | `Function`       | -                    |
