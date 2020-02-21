@@ -113,6 +113,7 @@ class _MyHomePageState extends State<MyHomePage> {
         monthNameWidget: _monthNameWidget,
         markedDates: markedDates,
         containerDecoration: BoxDecoration(color: Colors.black12),
+        addSwipeGesture: true,
       )),
     );
   }
