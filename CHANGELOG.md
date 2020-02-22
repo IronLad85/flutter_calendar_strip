@@ -15,3 +15,9 @@
 
 ## [1.0.4] - TODO: Remove Unused Dependencies.
 - REMOVED: Unused Dependencies
+
+## [1.0.5] - TODO: Added Swipe feature.
+- ADDED: Added Swipe feature via pull request by a contributor
+
+## [1.0.6] - TODO: Fixed Bug.
+- UPDATED: Fixed Selected Date Bug
