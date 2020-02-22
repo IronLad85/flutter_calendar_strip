@@ -20,7 +20,7 @@
 ```text
 dependencies:
           ...
-          calendar_strip: ^1.0.4
+          calendar_strip: ^1.0.6
 ```
 
 ## Usage Example
