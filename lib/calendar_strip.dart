@@ -109,12 +109,19 @@ class CalendarStripState extends State<CalendarStrip>
   @override
   void initState() {
     super.initState();
-    int subtractDuration = widget.weekStartsOnSunday == true
-        ? currentDate.weekday
-        : currentDate.weekday - 1;
+
+    int customWeekday;
+    if (widget.weekStartsOnSunday) {
+      customWeekday = currentDate.weekday + 1;
+      if (customWeekday > 7) customWeekday = 1;
+    } else {
+      customWeekday = currentDate.weekday;
+    }
+
     rowStartingDate = rowStartingDate != null
         ? rowStartingDate
-        : currentDate.subtract(Duration(days: subtractDuration));
+        : currentDate.subtract(Duration(days: customWeekday - 1));
+
     var dateRange = calculateDateRange(null);
 
     setState(() {
@@ -192,6 +199,12 @@ class CalendarStripState extends State<CalendarStrip>
       }
       weekStartingDate = getDateOnly(_nextRowStartingDate);
       weekEndingDate = getDateOnly(_nextRowStartingDate.add(Duration(days: 6)));
+
+      print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+      print("Row Starting Date = " + _nextRowStartingDate.toString());
+      print("Week starting date = " + weekStartingDate.toString());
+      print("Week ending date = " + weekEndingDate.toString());
+      print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
       bool isStartingWeekOnRange =
           isDateAfter(widget.startDate, weekStartingDate);
       bool isEndingWeekOnRange = isDateBefore(widget.endDate, weekEndingDate);
