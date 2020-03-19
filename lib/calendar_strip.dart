@@ -18,6 +18,8 @@ class CalendarStrip extends StatefulWidget {
   final List<DateTime> markedDates;
   final bool addSwipeGesture;
   final bool weekStartsOnSunday;
+  final Icon rightIcon;
+  final Icon leftIcon;
 
   CalendarStrip({
     this.addSwipeGesture = false,
@@ -32,6 +34,8 @@ class CalendarStrip extends StatefulWidget {
     this.startDate,
     this.endDate,
     this.markedDates,
+    this.rightIcon,
+    this.leftIcon,
   });
 
   State<CalendarStrip> createState() =>
@@ -256,11 +260,12 @@ class CalendarStripState extends State<CalendarStrip>
   rightIconWidget() {
     if (!isOnEndingWeek) {
       return InkWell(
-        child: Icon(
-          CupertinoIcons.right_chevron,
-          size: 30,
-          color: nullOrDefault(widget.iconColor, Colors.black),
-        ),
+        child: widget.rightIcon ??
+            Icon(
+              CupertinoIcons.right_chevron,
+              size: 30,
+              color: nullOrDefault(widget.iconColor, Colors.black),
+            ),
         onTap: onNextRow,
         splashColor: Colors.black26,
       );
@@ -272,11 +277,12 @@ class CalendarStripState extends State<CalendarStrip>
   leftIconWidget() {
     if (!isOnStartingWeek) {
       return InkWell(
-        child: Icon(
-          CupertinoIcons.left_chevron,
-          size: 30,
-          color: nullOrDefault(widget.iconColor, Colors.black),
-        ),
+        child: widget.leftIcon ??
+            Icon(
+              CupertinoIcons.left_chevron,
+              size: 30,
+              color: nullOrDefault(widget.iconColor, Colors.black),
+            ),
         onTap: onPrevRow,
         splashColor: Colors.black26,
       );
