@@ -200,11 +200,6 @@ class CalendarStripState extends State<CalendarStrip>
       weekStartingDate = getDateOnly(_nextRowStartingDate);
       weekEndingDate = getDateOnly(_nextRowStartingDate.add(Duration(days: 6)));
 
-      print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-      print("Row Starting Date = " + _nextRowStartingDate.toString());
-      print("Week starting date = " + weekStartingDate.toString());
-      print("Week ending date = " + weekEndingDate.toString());
-      print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
       bool isStartingWeekOnRange =
           isDateAfter(widget.startDate, weekStartingDate);
       bool isEndingWeekOnRange = isDateBefore(widget.endDate, weekEndingDate);
