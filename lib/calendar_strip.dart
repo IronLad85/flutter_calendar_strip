@@ -89,9 +89,13 @@ class CalendarStripState extends State<CalendarStrip>
         (startDate != null && endDate == null)) {
       throw Exception(
           "Both 'startDate' and 'endDate' are mandatory to specify range");
+    }  else if (selectedDate != null &&
+        startDate != null &&
+        isDateBefore(selectedDate, startDate)) {
+      throw Exception("Selected Date is out of range from start and end dates");
     } else if (selectedDate != null &&
-        (isDateBefore(selectedDate, startDate) ||
-            isDateAfter(selectedDate, endDate))) {
+        endDate != null &&
+        isDateAfter(selectedDate, endDate)) {
       throw Exception("Selected Date is out of range from start and end dates");
     } else if (startDate == null && startDate == null) {
       doesDateRangeExists = false;
