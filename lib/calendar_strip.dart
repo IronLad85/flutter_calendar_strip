@@ -111,6 +111,21 @@ class CalendarStripState extends State<CalendarStrip>
   }
 
   @override
+  void didUpdateWidget(CalendarStrip oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedDate != oldWidget.selectedDate &&
+        widget.selectedDate != null &&
+        (isDateBefore(widget.selectedDate, widget.startDate) ||
+            isDateAfter(widget.selectedDate, widget.endDate))) {
+      throw Exception("Selected Date is out of range from start and end dates");
+    } else {
+      setState(() {
+        selectedDate = getDateOnly(widget.selectedDate);
+      });
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
     int subtractDuration = widget.weekStartsOnSunday == true
@@ -429,7 +444,7 @@ class SlideFadeTransitionState extends State<SlideFadeTransition>
     with TickerProviderStateMixin {
   AnimationController _animController;
   Animation<Offset> _animOffset;
-  bool _disposed=false;
+  bool _disposed = false;
 
   @override
   void initState() {
@@ -445,11 +460,11 @@ class SlideFadeTransitionState extends State<SlideFadeTransition>
             .animate(_curve);
 
     if (widget.delay == null) {
-      if(!_disposed) _animController.forward();
+      if (!_disposed) _animController.forward();
     } else {
       _animController.reset();
       Future.delayed(Duration(milliseconds: widget.delay), () {
-        if(!_disposed) _animController.forward();
+        if (!_disposed) _animController.forward();
       });
     }
   }
@@ -460,7 +475,7 @@ class SlideFadeTransitionState extends State<SlideFadeTransition>
     if (widget.id != oldWidget.id) {
       _animController.reset();
       Future.delayed(Duration(milliseconds: widget.delay), () {
-        if(!_disposed) _animController.forward();
+        if (!_disposed) _animController.forward();
       });
     }
   }
