@@ -1,6 +1,7 @@
 <h1 align="center"> Flutter Calendar Strip </h1>
 <div align="center">
   <strong> Easy to use and beautiful calendar strip component for Flutter.</strong>
+  <b> Awesome celender widget </b>
 </div>
 <div align="center">
 
