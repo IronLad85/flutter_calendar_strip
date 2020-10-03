@@ -237,7 +237,7 @@ class _MyHomePageState extends State<MyHomePage> {
 | **`startDate`**           | Date to be used for setting starting date in a date range.                                           | `DateTime`       | -                    |
 | **`endDate`**             | Date to be used for setting ending date in a date range.                                             | `DateTime`       | -                    |
 | **`selectedDate`**        | Date to be used for setting a date as pre-selected instead of current Date.                          | `DateTime`       | -                    |
-| **`markedDates`**         | List of `DateTime`s to be marked in UI. It is also passed as parementer in `dateTileBuilder` method, | `List<DateTime>` | -                    |
+| **`markedDates`**         | List of `DateTime`s to be marked in UI. It is also passed as parameter in `dateTileBuilder` method, | `List<DateTime>` | -                    |
 | **`iconColor`**           | Icon colors of both Left and Right Chevron Icons.                                                    | `Color`          | **`Colors.black87`** |
 | **`containerHeight`**     | The Height of the calendar strip.                                                                    | `int`            | **`90`**             |
 | **`containerDecoration`** | Box Decoration object styling the container for more custom styling.                                 | `BoxDecoration`  | -                    |
