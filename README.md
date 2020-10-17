@@ -33,6 +33,7 @@ Container(
     startDate: startDate,
     endDate: endDate,
     onDateSelected: onSelect,
+    onWeekSelected: onWeekSelect,
     dateTileBuilder: dateTileBuilder,
     iconColor: Colors.black87,
     monthNameWidget: _monthNameWidget,
@@ -151,6 +152,10 @@ class _MyHomePageState extends State<MyHomePage> {
     print("Selected Date -> $data");
   }
 
+  onWeekSelect(data) {
+    print("Selected week starting at -> $data");
+  }
+
   _monthNameWidget(monthName) {
     return Container(
       child: Text(monthName,
@@ -216,6 +221,7 @@ class _MyHomePageState extends State<MyHomePage> {
         startDate: startDate,
         endDate: endDate,
         onDateSelected: onSelect,
+        onWeekSelected: onWeekSelect,
         dateTileBuilder: dateTileBuilder,
         iconColor: Colors.black87,
         monthNameWidget: _monthNameWidget,
