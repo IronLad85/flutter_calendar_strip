@@ -46,7 +46,8 @@ class CalendarStrip extends StatefulWidget {
 
 class CalendarStripState extends State<CalendarStrip>
     with TickerProviderStateMixin {
-  DateTime currentDate = DateTime.now();
+  DateTime currentDate = DateTime.utc(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day);
   DateTime selectedDate;
   String monthLabel;
   bool inBetweenMonths = false;
@@ -184,7 +185,7 @@ class CalendarStripState extends State<CalendarStrip>
   }
 
   DateTime getDateOnly(DateTime dateTimeObj) {
-    return DateTime(dateTimeObj.year, dateTimeObj.month, dateTimeObj.day);
+    return DateTime.utc(dateTimeObj.year, dateTimeObj.month, dateTimeObj.day);
   }
 
   bool isDateMarked(date) {
