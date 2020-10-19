@@ -7,6 +7,7 @@ import './date-utils.dart';
 class CalendarStrip extends StatefulWidget {
   // This widget is the root of your application.
   final Function onDateSelected;
+  final Function onWeekSelected;
   final Function dateTileBuilder;
   final BoxDecoration containerDecoration;
   final double containerHeight;
@@ -25,6 +26,7 @@ class CalendarStrip extends StatefulWidget {
     this.addSwipeGesture = false,
     this.weekStartsOnSunday = false,
     @required this.onDateSelected,
+    this.onWeekSelected,
     this.dateTileBuilder,
     this.containerDecoration,
     this.containerHeight,
@@ -227,6 +229,7 @@ class CalendarStripState extends State<CalendarStrip>
     var dateRange = calculateDateRange("PREV");
     setState(() {
       rowStartingDate = rowStartingDate.subtract(Duration(days: 7));
+      widget.onWeekSelected(rowStartingDate);
       isOnEndingWeek = dateRange['isEndingWeekOnRange'];
       isOnStartingWeek = dateRange['isStartingWeekOnRange'];
     });
@@ -236,6 +239,7 @@ class CalendarStripState extends State<CalendarStrip>
     var dateRange = calculateDateRange("NEXT");
     setState(() {
       rowStartingDate = rowStartingDate.add(Duration(days: 7));
+      widget.onWeekSelected(rowStartingDate);
       isOnEndingWeek = dateRange['isEndingWeekOnRange'];
       isOnStartingWeek = dateRange['isStartingWeekOnRange'];
     });
