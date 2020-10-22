@@ -2,8 +2,8 @@ name: calendar_strip
 description:
   Flutter Calendar strip widget with custom date and custom styling. Date range can also be set between 2 date to
   disable selection of irrevelant dates
-version: 1.0.6
-homepage: https://github.com/IronLad85/bubble_animated_tabbar
+version: 1.0.7
+homepage: https://github.com/IronLad85/flutter_calendar_strip.git
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

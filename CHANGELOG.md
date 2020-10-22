@@ -21,3 +21,6 @@
 
 ## [1.0.6] - TODO: Fixed Bug.
 - UPDATED: Fixed Selected Date Bug
+
+## [1.0.7] - TODO: Fixed Bug.
+- UPDATED: Fixed Dart's daylight saving system bug
