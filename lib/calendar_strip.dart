@@ -2,22 +2,28 @@ library calendar_strip;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import './date-utils.dart';
+import './date-utils.dart' as d;
 
 class CalendarStrip extends StatefulWidget {
-  // This widget is the root of your application.
   final Function onDateSelected;
   final Function onWeekSelected;
   final Function dateTileBuilder;
   final BoxDecoration containerDecoration;
   final double containerHeight;
   final Function monthNameWidget;
-  final Color iconColor;
   final DateTime selectedDate;
+  final bool changeSelectedWeekOnUpdate;
+  final Color selectedDateColor;
+  final Color selectedDateTextColor;
+  final Color daysTextColor;
+  final Color monthYearTextColor;
+  final Color iconColor;
   final DateTime startDate;
   final DateTime endDate;
   final List<DateTime> markedDates;
   final bool addSwipeGesture;
+  final List<String> monthLabels;
+  final List<String> dayLabels;
   final bool weekStartsOnSunday;
   final Icon rightIcon;
   final Icon leftIcon;
@@ -31,13 +37,33 @@ class CalendarStrip extends StatefulWidget {
     this.containerDecoration,
     this.containerHeight,
     this.monthNameWidget,
-    this.iconColor,
     this.selectedDate,
+    this.changeSelectedWeekOnUpdate = true,
+    this.selectedDateColor = Colors.blue,
+    this.selectedDateTextColor,
+    this.daysTextColor,
+    this.monthYearTextColor,
+    this.iconColor = Colors.black,
     this.startDate,
     this.endDate,
     this.markedDates,
     this.rightIcon,
     this.leftIcon,
+    this.monthLabels = const [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December"
+    ],
+    this.dayLabels = const ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"],
   });
 
   State<CalendarStrip> createState() =>
@@ -52,7 +78,6 @@ class CalendarStripState extends State<CalendarStrip>
   String monthLabel;
   bool inBetweenMonths = false;
   DateTime rowStartingDate;
-  double opacity = 0.0;
   DateTime lastDayOfMonth;
   TextStyle monthLabelStyle = TextStyle(
       fontSize: 17, fontWeight: FontWeight.w600, color: Colors.black87);
@@ -62,27 +87,10 @@ class CalendarStripState extends State<CalendarStrip>
   bool doesDateRangeExists = false;
   DateTime today;
 
-  List<String> monthLabels = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ];
-
-  List<String> dayLabels = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
-
   CalendarStripState(
       DateTime selectedDate, DateTime startDate, DateTime endDate) {
     today = getDateOnly(DateTime.now());
-    lastDayOfMonth = DateUtils.getLastDayOfMonth(currentDate);
+    lastDayOfMonth = d.DateUtils.getLastDayOfMonth(currentDate);
     runPresetsAndExceptions(selectedDate, startDate, endDate);
     this.selectedDate = currentDate;
   }
@@ -125,12 +133,16 @@ class CalendarStripState extends State<CalendarStrip>
       setState(() {
         selectedDate = getDateOnly(widget.selectedDate);
       });
+      if (widget.changeSelectedWeekOnUpdate)
+        rowStartingDate = selectedDate.subtract(Duration(
+            days: widget.weekStartsOnSunday
+                ? selectedDate.weekday
+                : selectedDate.weekday - 1));
     }
   }
 
   @override
   void initState() {
-    super.initState();
     int subtractDuration = widget.weekStartsOnSunday == true
         ? currentDate.weekday
         : currentDate.weekday - 1;
@@ -139,14 +151,21 @@ class CalendarStripState extends State<CalendarStrip>
         : currentDate.subtract(Duration(days: subtractDuration));
     var dateRange = calculateDateRange(null);
 
-    setState(() {
-      isOnEndingWeek = dateRange['isEndingWeekOnRange'];
-      isOnStartingWeek = dateRange['isStartingWeekOnRange'];
-    });
+    isOnEndingWeek = dateRange['isEndingWeekOnRange'];
+    isOnStartingWeek = dateRange['isStartingWeekOnRange'];
+
+    if (widget.selectedDateTextColor != null)
+      selectedDateStyle =
+          selectedDateStyle.copyWith(color: widget.selectedDateTextColor);
+    if (widget.monthYearTextColor != null)
+      monthLabelStyle =
+          monthLabelStyle.copyWith(color: widget.monthYearTextColor);
+
+    super.initState();
   }
 
   int getLastDayOfMonth(rowStartingDay) {
-    return DateUtils.getLastDayOfMonth(
+    return d.DateUtils.getLastDayOfMonth(
             currentDate.add(Duration(days: rowStartingDay)))
         .day;
   }
@@ -154,7 +173,7 @@ class CalendarStripState extends State<CalendarStrip>
   String getMonthName(
     DateTime dateObj,
   ) {
-    return monthLabels[dateObj.month - 1];
+    return widget.monthLabels[dateObj.month - 1];
   }
 
   String getMonthLabel() {
@@ -230,7 +249,7 @@ class CalendarStripState extends State<CalendarStrip>
     var dateRange = calculateDateRange("PREV");
     setState(() {
       rowStartingDate = rowStartingDate.subtract(Duration(days: 7));
-      widget.onWeekSelected(rowStartingDate);
+      if (widget.onWeekSelected != null) widget.onWeekSelected(rowStartingDate);
       isOnEndingWeek = dateRange['isEndingWeekOnRange'];
       isOnStartingWeek = dateRange['isStartingWeekOnRange'];
     });
@@ -240,7 +259,7 @@ class CalendarStripState extends State<CalendarStrip>
     var dateRange = calculateDateRange("NEXT");
     setState(() {
       rowStartingDate = rowStartingDate.add(Duration(days: 7));
-      widget.onWeekSelected(rowStartingDate);
+      if (widget.onWeekSelected != null) widget.onWeekSelected(rowStartingDate);
       isOnEndingWeek = dateRange['isEndingWeekOnRange'];
       isOnStartingWeek = dateRange['isStartingWeekOnRange'];
     });
@@ -284,7 +303,7 @@ class CalendarStripState extends State<CalendarStrip>
             Icon(
               CupertinoIcons.right_chevron,
               size: 30,
-              color: nullOrDefault(widget.iconColor, Colors.black),
+              color: widget.iconColor,
             ),
         onTap: onNextRow,
         splashColor: Colors.black26,
@@ -301,7 +320,7 @@ class CalendarStripState extends State<CalendarStrip>
             Icon(
               CupertinoIcons.left_chevron,
               size: 30,
-              color: nullOrDefault(widget.iconColor, Colors.black),
+              color: widget.iconColor,
             ),
         onTap: onPrevRow,
         splashColor: Colors.black26,
@@ -364,7 +383,7 @@ class CalendarStripState extends State<CalendarStrip>
 
   Widget dateTileBuilder(DateTime date, DateTime selectedDate, int rowIndex) {
     bool isDateOutOfRange = checkOutOfRangeStatus(date);
-    String dayName = dayLabels[date.weekday - 1];
+    String dayName = widget.dayLabels[date.weekday - 1];
     if (widget.dateTileBuilder != null) {
       return Expanded(
         child: SlideFadeTransition(
@@ -387,7 +406,7 @@ class CalendarStripState extends State<CalendarStrip>
     var normalStyle = TextStyle(
         fontSize: 17,
         fontWeight: FontWeight.w800,
-        color: isDateOutOfRange ? Colors.black26 : Colors.black54);
+        color: isDateOutOfRange ? Colors.black26 : nullOrDefault(widget.daysTextColor, Colors.black54));
     return Expanded(
       child: SlideFadeTransition(
         delay: 30 + (30 * rowIndex),
@@ -399,16 +418,21 @@ class CalendarStripState extends State<CalendarStrip>
             alignment: Alignment.center,
             padding: EdgeInsets.only(top: 8, left: 5, right: 5, bottom: 5),
             decoration: BoxDecoration(
-              color: !isSelectedDate ? Colors.transparent : Colors.blue,
+              color: !isSelectedDate
+                  ? Colors.transparent
+                  : widget.selectedDateColor,
               borderRadius: BorderRadius.all(Radius.circular(60)),
             ),
             child: Column(
               children: [
                 Text(
-                  dayLabels[date.weekday - 1],
+                  widget.dayLabels[date.weekday - 1],
                   style: TextStyle(
                     fontSize: 14.5,
-                    color: !isSelectedDate ? Colors.black : Colors.white,
+                    color: !isSelectedDate
+                        ? nullOrDefault(widget.daysTextColor, Colors.black)
+                        : nullOrDefault(
+                            widget.selectedDateTextColor, Colors.white),
                   ),
                 ),
                 Text(date.day.toString(),
@@ -425,9 +449,7 @@ class CalendarStripState extends State<CalendarStrip>
     return Container(
       height: nullOrDefault(widget.containerHeight, 90.0),
       child: buildDateRow(),
-      decoration: widget.containerDecoration != null
-          ? widget.containerDecoration
-          : BoxDecoration(),
+      decoration: widget.containerDecoration ?? BoxDecoration(),
     );
   }
 }
