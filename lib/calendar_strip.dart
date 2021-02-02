@@ -139,6 +139,14 @@ class CalendarStripState extends State<CalendarStrip>
                 ? selectedDate.weekday
                 : selectedDate.weekday - 1));
     }
+
+
+    if (widget.selectedDateTextColor != null)
+      selectedDateStyle =
+          selectedDateStyle.copyWith(color: widget.selectedDateTextColor);
+    if (widget.monthYearTextColor != null)
+      monthLabelStyle =
+          monthLabelStyle.copyWith(color: widget.monthYearTextColor);
   }
 
   @override
