@@ -307,6 +307,7 @@ class CalendarStripState extends State<CalendarStrip>
   rightIconWidget() {
     if (!isOnEndingWeek) {
       return InkWell(
+        customBorder: CircleBorder(),
         child: widget.rightIcon ??
             Icon(
               CupertinoIcons.right_chevron,
@@ -324,6 +325,7 @@ class CalendarStripState extends State<CalendarStrip>
   leftIconWidget() {
     if (!isOnStartingWeek) {
       return InkWell(
+        customBorder: CircleBorder(),
         child: widget.leftIcon ??
             Icon(
               CupertinoIcons.left_chevron,
@@ -421,6 +423,7 @@ class CalendarStripState extends State<CalendarStrip>
         id: "${date.day}${date.month}${date.year}",
         curve: Curves.ease,
         child: InkWell(
+          customBorder: CircleBorder(),
           onTap: () => onDateTap(date),
           child: Container(
             alignment: Alignment.center,
