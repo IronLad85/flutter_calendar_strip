@@ -1,4 +1,4 @@
-class DateUtils {
+class CalendarDateUtils {
   static DateTime toMidnight(DateTime dateTime) {
     return DateTime(dateTime.year, dateTime.month, dateTime.day);
   }
@@ -9,7 +9,9 @@ class DateUtils {
 
   static bool isToday(DateTime date) {
     var now = DateTime.now();
-    return date.day == now.day && date.month == now.month && date.year == now.year;
+    return date.day == now.day &&
+        date.month == now.month &&
+        date.year == now.year;
   }
 
   static bool isPastDay(DateTime date) {
@@ -62,7 +64,8 @@ class DateUtils {
   static DateTime addMonths(DateTime fromMonth, int months) {
     DateTime firstDayOfCurrentMonth = fromMonth;
     for (int i = 0; i < months; i++) {
-      firstDayOfCurrentMonth = getLastDayOfMonth(firstDayOfCurrentMonth).add(Duration(days: 1));
+      firstDayOfCurrentMonth =
+          getLastDayOfMonth(firstDayOfCurrentMonth).add(Duration(days: 1));
     }
 
     return firstDayOfCurrentMonth;
@@ -80,7 +83,9 @@ class DateUtils {
   }
 
   static bool isSameDay(DateTime date1, DateTime date2) {
-    return date1.day == date2.day && date1.month == date2.month && date1.year == date2.year;
+    return date1.day == date2.day &&
+        date1.month == date2.month &&
+        date1.year == date2.year;
   }
 
   static bool isCurrentMonth(DateTime date) {
@@ -88,7 +93,8 @@ class DateUtils {
     return date.month == now.month && date.year == now.year;
   }
 
-  static int calculateMaxWeeksNumberMonthly(DateTime startDate, DateTime endDate) {
+  static int calculateMaxWeeksNumberMonthly(
+      DateTime startDate, DateTime endDate) {
     int monthsNumber = calculateMonthsDifference(startDate, endDate);
 
     List<int> weeksNumbersMonthly = List();
@@ -96,15 +102,18 @@ class DateUtils {
     if (monthsNumber == 0) {
       return calculateWeeksNumber(startDate, endDate);
     } else {
-      weeksNumbersMonthly.add(calculateWeeksNumber(startDate, getLastDayOfMonth(startDate)));
+      weeksNumbersMonthly
+          .add(calculateWeeksNumber(startDate, getLastDayOfMonth(startDate)));
 
       DateTime firstDateOfMonth = getFirstDayOfMonth(startDate);
       for (int i = 1; i <= monthsNumber - 2; i++) {
         firstDateOfMonth = firstDateOfMonth.add(Duration(days: 31));
-        weeksNumbersMonthly.add(calculateWeeksNumber(firstDateOfMonth, getLastDayOfMonth(firstDateOfMonth)));
+        weeksNumbersMonthly.add(calculateWeeksNumber(
+            firstDateOfMonth, getLastDayOfMonth(firstDateOfMonth)));
       }
 
-      weeksNumbersMonthly.add(calculateWeeksNumber(getFirstDayOfMonth(endDate), endDate));
+      weeksNumbersMonthly
+          .add(calculateWeeksNumber(getFirstDayOfMonth(endDate), endDate));
 
       weeksNumbersMonthly.sort((a, b) => b.compareTo(a));
       return weeksNumbersMonthly[0];
@@ -116,7 +125,8 @@ class DateUtils {
     return 12 * yearsDifference + endDate.month - startDate.month;
   }
 
-  static int calculateWeeksNumber(DateTime monthStartDate, DateTime monthEndDate) {
+  static int calculateWeeksNumber(
+      DateTime monthStartDate, DateTime monthEndDate) {
     int rowsNumber = 1;
 
     DateTime currentDay = monthStartDate;

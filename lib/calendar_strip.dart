@@ -82,7 +82,7 @@ class CalendarStripState extends State<CalendarStrip>
   CalendarStripState(
       DateTime selectedDate, DateTime startDate, DateTime endDate) {
     today = getDateOnly(DateTime.now());
-    lastDayOfMonth = DateUtils.getLastDayOfMonth(currentDate);
+    lastDayOfMonth = CalendarDateUtils.getLastDayOfMonth(currentDate);
     runPresetsAndExceptions(selectedDate, startDate, endDate);
     this.selectedDate = currentDate;
   }
@@ -146,7 +146,7 @@ class CalendarStripState extends State<CalendarStrip>
   }
 
   int getLastDayOfMonth(rowStartingDay) {
-    return DateUtils.getLastDayOfMonth(
+    return CalendarDateUtils.getLastDayOfMonth(
             currentDate.add(Duration(days: rowStartingDay)))
         .day;
   }
