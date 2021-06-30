@@ -2,6 +2,8 @@ library calendar_strip;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import './date-utils.dart';
 
 class CalendarStrip extends StatefulWidget {
@@ -21,6 +23,7 @@ class CalendarStrip extends StatefulWidget {
   final bool weekStartsOnSunday;
   final Icon rightIcon;
   final Icon leftIcon;
+  final String locale;
 
   CalendarStrip({
     this.addSwipeGesture = false,
@@ -38,6 +41,7 @@ class CalendarStrip extends StatefulWidget {
     this.markedDates,
     this.rightIcon,
     this.leftIcon,
+    this.locale = 'en_US',
   });
 
   State<CalendarStrip> createState() =>
@@ -61,23 +65,6 @@ class CalendarStripState extends State<CalendarStrip>
   bool isOnEndingWeek = false, isOnStartingWeek = false;
   bool doesDateRangeExists = false;
   DateTime today;
-
-  List<String> monthLabels = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-  ];
-
-  List<String> dayLabels = ["Mon", "Tue", "Wed", "Thr", "Fri", "Sat", "Sun"];
 
   CalendarStripState(
       DateTime selectedDate, DateTime startDate, DateTime endDate) {
@@ -131,6 +118,7 @@ class CalendarStripState extends State<CalendarStrip>
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting(widget.locale, null);
     int subtractDuration = widget.weekStartsOnSunday == true
         ? currentDate.weekday
         : currentDate.weekday - 1;
@@ -154,7 +142,8 @@ class CalendarStripState extends State<CalendarStrip>
   String getMonthName(
     DateTime dateObj,
   ) {
-    return monthLabels[dateObj.month - 1];
+    //return monthLabels[dateObj.month - 1];
+    return DateFormat("MMMM", widget.locale).format(dateObj);
   }
 
   String getMonthLabel() {
@@ -364,7 +353,6 @@ class CalendarStripState extends State<CalendarStrip>
 
   Widget dateTileBuilder(DateTime date, DateTime selectedDate, int rowIndex) {
     bool isDateOutOfRange = checkOutOfRangeStatus(date);
-    String dayName = dayLabels[date.weekday - 1];
     if (widget.dateTileBuilder != null) {
       return Expanded(
         child: SlideFadeTransition(
@@ -375,8 +363,14 @@ class CalendarStripState extends State<CalendarStrip>
             customBorder: CircleBorder(),
             onTap: () => onDateTap(date),
             child: Container(
-              child: widget.dateTileBuilder(date, selectedDate, rowIndex,
-                  dayName, isDateMarked(date), isDateOutOfRange),
+              child: widget.dateTileBuilder(
+                date,
+                selectedDate,
+                rowIndex,
+                DateFormat('E', widget.locale).format(date),
+                isDateMarked(date),
+                isDateOutOfRange,
+              ),
             ),
           ),
         ),
@@ -405,7 +399,7 @@ class CalendarStripState extends State<CalendarStrip>
             child: Column(
               children: [
                 Text(
-                  dayLabels[date.weekday - 1],
+                  DateFormat('EEEE', widget.locale).format(date),
                   style: TextStyle(
                     fontSize: 14.5,
                     color: !isSelectedDate ? Colors.black : Colors.white,
@@ -454,7 +448,6 @@ class SlideFadeTransitionState extends State<SlideFadeTransition>
   @override
   void initState() {
     super.initState();
-
     _animController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 400));
     final _curve = CurvedAnimation(
