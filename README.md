@@ -227,6 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
         monthNameWidget: _monthNameWidget,
         markedDates: markedDates,
         containerDecoration: BoxDecoration(color: Colors.black12),
+        //locale = 'en_US', //Default
       )),
     );
   }
@@ -252,3 +253,4 @@ class _MyHomePageState extends State<MyHomePage> {
 | **`dateTileBuilder`**     | Function that returns a custom widget for rendering the name of the current month                    | `Function`       | -                    |
 | **`onDateSelected`**      | Function that is called on selection of a date. (Required)                                           | `Function`       | **`Required`**       |
 | **`addSwipeControl`**     | Boolean that is used to turn on or off swipe control on the calendar strip                           | `Boolean`        | -                    |
+| **`locale`**     | To specify a language, simply pass it as a String code to locale property.                          | `String`        | **`en_US`**                    |

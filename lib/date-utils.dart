@@ -97,7 +97,7 @@ class CalendarDateUtils {
       DateTime startDate, DateTime endDate) {
     int monthsNumber = calculateMonthsDifference(startDate, endDate);
 
-    List<int> weeksNumbersMonthly = List();
+    List<int> weeksNumbersMonthly = [];
 
     if (monthsNumber == 0) {
       return calculateWeeksNumber(startDate, endDate);
